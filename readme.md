@@ -25,6 +25,14 @@ Repository ini merupakan kumpulan materi dan latihan dari perjalanan belajar bah
 - Slice dan operasinya 
 - Map dan penggunaannya
 
+### Pertemuan 2: Deep Dive in Go
+- Pointer dan penggunaannya
+- Struct dan method
+- Error handling
+- Goroutines dan concurrency dasar
+- Channels dan komunikasi antar goroutine
+- Defer, panic, dan recover
+
 ## Cara Menjalankan Kode
 
 Setiap pertemuan memiliki direktori tersendiri. Untuk menjalankan kode, masuk ke direktori yang sesuai dan jalankan:
