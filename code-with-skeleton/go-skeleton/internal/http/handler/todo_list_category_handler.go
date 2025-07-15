@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/rahmatrdn/go-skeleton/internal/http/middleware"
 	"net/http"
 
 	"github.com/rahmatrdn/go-skeleton/internal/parser"
@@ -26,11 +27,11 @@ func NewTodoListCategoryHandler(
 }
 
 func (w *TodoListCategoryHandler) Register(app fiber.Router) {
-	app.Get("/todo-category/:id", w.GetByID)
-	app.Get("/todo-category", w.GetAll)
-	app.Post("/todo-category", w.Create)
-	app.Put("/todo-category/:id", w.Update)
-	app.Delete("/todo-category/:id", w.Delete)
+	app.Get("/todo-category/:id", middleware.VerifyJWTToken, w.GetByID)
+	app.Get("/todo-category", middleware.VerifyJWTToken, w.GetAll)
+	app.Post("/todo-category", middleware.VerifyJWTToken, w.Create)
+	app.Put("/todo-category/:id", middleware.VerifyJWTToken, w.Update)
+	app.Delete("/todo-category/:id", middleware.VerifyJWTToken, w.Delete)
 }
 
 // @Summary         Get Todo List Category by ID
