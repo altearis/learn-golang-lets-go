@@ -97,7 +97,7 @@ func (w *TodoListCategoryHandler) GetAll(c *fiber.Ctx) error {
 func (w *TodoListCategoryHandler) Create(c *fiber.Ctx) error {
 	var req entity.TodoListCatReq
 
-	err := w.parser.ParserBodyRequest(c, &req)
+	err := w.parser.ParserBodyRequestWithUserID(c, &req)
 	if err != nil {
 		return w.presenter.BuildError(c, err)
 	}
@@ -127,7 +127,7 @@ func (w *TodoListCategoryHandler) Create(c *fiber.Ctx) error {
 func (w *TodoListCategoryHandler) Update(c *fiber.Ctx) error {
 	var req entity.TodoListCatReq
 	id, err := w.parser.ParserIntIDFromPathParams(c)
-	err = w.parser.ParserBodyRequest(c, &req)
+	err = w.parser.ParserBodyRequestWithUserID(c, &req)
 	if err != nil {
 		return w.presenter.BuildError(c, err)
 	}

@@ -3,6 +3,7 @@ package todo_list_usecase
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	errwrap "github.com/pkg/errors"
@@ -52,6 +53,7 @@ func (t *CrudTodoListCategoryUsecase) GetByID(ctx context.Context, todoListID in
 		ID:          data.ID,
 		Name:        data.Name,
 		Description: data.Description,
+		CreatedBy:   strconv.FormatInt(data.CreatedBy, 10),
 		CreatedAt:   helper.ConvertToJakartaTime(data.CreatedAt),
 	}, nil
 }
@@ -71,6 +73,7 @@ func (t *CrudTodoListCategoryUsecase) GetAll(ctx context.Context) (res []*entity
 			ID:          v.ID,
 			Name:        v.Name,
 			Description: v.Description,
+			CreatedBy:   strconv.FormatInt(v.CreatedBy, 10),
 			CreatedAt:   helper.ConvertToJakartaTime(v.CreatedAt),
 		})
 	}
@@ -81,8 +84,8 @@ func (t *CrudTodoListCategoryUsecase) GetAll(ctx context.Context) (res []*entity
 func (t *CrudTodoListCategoryUsecase) Create(ctx context.Context, todoListReq entity.TodoListCatReq) (*entity.TodoListCatResponse, error) {
 	funcName := "CrudTodoListCategoryUsecase.Create"
 	captureFieldError := generalEntity.CaptureFields{
-		"category_id": helper.ToString(todoListReq.ID),
-		"payload":     helper.ToString(todoListReq),
+		"user_id": helper.ToString(todoListReq.UserID),
+		"payload": helper.ToString(todoListReq),
 	}
 
 	if errMsg := usecase.ValidateStruct(todoListReq); errMsg != "" {
@@ -92,6 +95,7 @@ func (t *CrudTodoListCategoryUsecase) Create(ctx context.Context, todoListReq en
 	todoListPayload := &mentity.TodoListCategoryEnt{
 		Name:        todoListReq.Name,
 		Description: todoListReq.Description,
+		CreatedBy:   todoListReq.UserID,
 		CreatedAt:   time.Now(),
 	}
 
@@ -105,6 +109,7 @@ func (t *CrudTodoListCategoryUsecase) Create(ctx context.Context, todoListReq en
 		ID:          todoListPayload.ID,
 		Name:        todoListPayload.Name,
 		Description: todoListPayload.Description,
+		CreatedBy:   strconv.FormatInt(todoListPayload.CreatedBy, 10),
 		CreatedAt:   helper.ConvertToJakartaTime(todoListPayload.CreatedAt),
 	}, nil
 }
@@ -114,8 +119,8 @@ func (t *CrudTodoListCategoryUsecase) UpdateByID(ctx context.Context, todoListCa
 	todoListID := todoListCatReq.ID
 
 	captureFieldError := generalEntity.CaptureFields{
-		"category_id": helper.ToString(todoListCatReq.ID),
-		"payload":     helper.ToString(todoListCatReq),
+		"user_id": helper.ToString(todoListCatReq.UserID),
+		"payload": helper.ToString(todoListCatReq),
 	}
 
 	if err := mysql.DBTransaction(t.todoListCatRepo, func(trx mysql.TrxObj) error {
@@ -132,6 +137,7 @@ func (t *CrudTodoListCategoryUsecase) UpdateByID(ctx context.Context, todoListCa
 		if err := t.todoListCatRepo.Update(ctx, trx, lockedData, &mentity.TodoListCategoryEnt{
 			Name:        todoListCatReq.Name,
 			Description: todoListCatReq.Description,
+			CreatedBy:   todoListCatReq.UserID,
 		}); err != nil {
 			helper.LogError("todoListCatRepo.Update", funcName, err, captureFieldError, "")
 
