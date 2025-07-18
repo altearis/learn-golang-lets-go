@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/rahmatrdn/go-skeleton/internal/usecase/generate_file"
 	"log"
 	"os"
 	"os/signal"
@@ -64,10 +65,10 @@ func main() {
 	parser := parser.NewParser()
 
 	// RabbitMQ Configuration (if needed)
-	// queue, err := config.NewRabbitMQInstance(context.Background(), &cfg.RabbitMQOption)
-	// if err != nil {zp
-	// 	log.Fatal(err)
-	// }
+	queue, err := config.NewRabbitMQInstance(context.Background(), &cfg.RabbitMQOption)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Redis Configuration (if needed)
 	// redisDB := config.NewRedis(&cfg.RedisOption)
@@ -97,11 +98,13 @@ func main() {
 	// _ = usecase.NewLogUsecase(queue)  // LogUsecase is a sample usecase for sending log to queue (Mongodb, ElasticSearch, etc.)
 	userUsecase := usecase.NewUserUsecase(userRepo, jwtAuth)
 	crudTodoListUsecase := todo_list_usecase.NewCrudTodoListUsecase(todoListRepo)
+	generateFileUsecase := generate_file.NewGenerateUsecase(queue)
 
 	api := app.Group("/api/v1")
 
 	handler.NewAuthHandler(parser, presenterJson, userUsecase).Register(api)
 	handler.NewTodoListHandler(parser, presenterJson, crudTodoListUsecase).Register(api)
+	handler.NewGenerateFileHandler(parser, presenterJson, generateFileUsecase).Register(api)
 
 	app.Get("/health-check", healthCheck)
 	app.Get("/metrics", monitor.New())
