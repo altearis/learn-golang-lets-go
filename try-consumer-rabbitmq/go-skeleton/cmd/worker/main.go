@@ -10,7 +10,6 @@ import (
 	"github.com/rahmatrdn/go-skeleton/config"
 	"github.com/rahmatrdn/go-skeleton/internal/queue"
 	"github.com/rahmatrdn/go-skeleton/internal/queue/consumer"
-	"github.com/rahmatrdn/go-skeleton/internal/repository/mongodb"
 	"github.com/subosito/gotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -38,11 +37,11 @@ func main() {
 	app.ctx = context.Background()
 	cfg := config.NewConfig()
 
-	app.mongoDB, err = config.NewMongodb(app.ctx, &cfg.MongodbOption)
+	/*app.mongoDB, err = config.NewMongodb(app.ctx, &cfg.MongodbOption)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer app.mongoDB.Client().Disconnect(app.ctx)
+	defer app.mongoDB.Client().Disconnect(app.ctx)*/
 
 	// gormLogger := config.NewGormLogConfig(&cfg.MysqlOption)
 	// mysqlDB, err := config.NewMysql(cfg.AppEnv, &cfg.MysqlOption, gormLogger)
@@ -56,11 +55,12 @@ func main() {
 	}
 
 	// MongoDB Repository
-	logMongoRepo := mongodb.NewLogRepository(app.mongoDB)
+	//logMongoRepo := mongodb.NewLogRepository(app.mongoDB)
 
 	// Consumer
-	logConsumer := consumer.NewLogConsumer(context.Background(), logMongoRepo)
-	exampleConsumer := consumer.NewExampleConsumer(context.Background(), logMongoRepo)
+	//logConsumer := consumer.NewLogConsumer(context.Background(), logMongoRepo)
+	generateReport := consumer.NewGenerateReport(context.Background())
+	//exampleConsumer := consumer.NewExampleConsumer(context.Background(), logMongoRepo)
 
 	var interrupt = make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
@@ -68,10 +68,13 @@ func main() {
 	switch os.Args[1] {
 	case queue.ProcessSyncLog:
 		log.Printf("[Worker] Listening to %v", queue.ProcessSyncLog)
-		go app.queue.HandleConsumedDeliveries(queue.ProcessSyncLog, logConsumer.ProcessSyncLog)
+	//	go app.queue.HandleConsumedDeliveries(queue.ProcessSyncLog, logConsumer.ProcessSyncLog)
 	case queue.ProcessExample:
 		log.Printf("[Worker] Listening to %v", queue.ProcessExample)
-		go app.queue.HandleConsumedDeliveries(queue.ProcessExample, exampleConsumer.Process)
+	//	go app.queue.HandleConsumedDeliveries(queue.ProcessExample, exampleConsumer.Process)
+	case queue.GenerateReport:
+		log.Printf("[Worker] Listening to %v", queue.GenerateReport)
+		go app.queue.HandleConsumedDeliveries(queue.GenerateReport, generateReport.Process)
 	default:
 		log.Fatalf("[Worker] topic not found : %v", os.Args[1])
 	}
